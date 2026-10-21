@@ -1,0 +1,119 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply from: "config.gradle"
+apply from: "VAConfig.gradle"
+
+buildscript {
+    ext.kotlin_version = "2.2.0"
+    repositories {
+        maven { url "https://artifact.transsion.com/artifactory/os-releases/"}
+        maven { url "https://artifact.transsion.com/artifactory/maven-public/" }
+        maven { url "https://mvn.shalltry.com/repository/maven-public/" }
+        maven { url "https://mvn.shalltry.com/repository/ad-releases/" }
+        maven { url "https://mvn.shalltry.com/repository/ad-snapshots/" }
+
+        maven { url "https://artifact.transsion.com/artifactory/aliyun/" }
+        maven { url "https://artifact.transsion.com/artifactory/google/" }
+        maven { url "https://mvn.shalltry.com/repository/ad-snapshots/" }
+        maven { url 'https://nexus.trasre.com/repository/tmc-release' }
+        maven { url 'https://nexus.trasre.com/repository/tmc-snapshot' }
+
+        //p2p
+        maven { url 'https://storage.googleapis.com/r8-releases/raw' }
+        maven { url "https://mvn.shalltry.com/repository/software-release/" }
+        maven { url "https://mvn.shalltry.com/repository/base-snapshots/" }
+        maven { url "https://artifact.transsion.com/artifactory/thub-maven-guard-local" }
+        maven { url "https://artifact.transsion.com/artifactory/thub-maven-daily-local/" }
+        // Hap SDK 标准化改造，palmsdk 2.0.1.30 依赖 hap-storage 等组件
+        maven { url "https://artifact.transsion.com/artifactory/tr-comp-maven-local/" }
+        //  google()
+    //    maven { url "https://jitpack.io" } //Could not find com.github.hackware1993:MagicIndicator
+       // mavenCentral()
+
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.13.2'
+        classpath 'com.google.gms:google-services:4.3.15'
+        classpath 'com.google.firebase:perf-plugin:1.4.2'
+        classpath 'com.google.firebase:firebase-crashlytics-gradle:2.9.5'
+       // classpath 'com.google.firebase:firebase-crashlytics-ndk:18.3.7'
+
+        classpath 'com.google.protobuf:protobuf-gradle-plugin:0.9.0'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0'
+        classpath 'com.yanzhenjie.andserver:plugin:2.1.10'
+        // agp 8.x以上
+        classpath 'io.github.didi:drouter-plugin:1.4.0'
+        classpath 'de.mannodermaus.gradle.plugins:android-junit5:1.11.0.0'
+//        classpath 'com.bytedance.btrace:rhea-gradle-plugin:2.0.3-rc02'
+    }
+}
+
+allprojects {
+    repositories {
+        // ... existing repos ...
+        maven { url "https://artifact.transsion.com/artifactory/os-releases/"}
+        maven { url "https://artifact.transsion.com/artifactory/maven-public/" }
+        maven { url "https://mvn.shalltry.com/repository/maven-public/" }
+        maven { url "https://mvn.shalltry.com/repository/ad-releases/" }
+        maven { url "https://mvn.shalltry.com/repository/ad-snapshots/" }
+        maven { url "https://artifact.transsion.com/artifactory/aliyun/" }
+        maven { url "https://artifact.transsion.com/artifactory/google/" }
+
+        maven { url "https://artifact.transsion.com/artifactory/fabric/"}
+        maven { url 'https://artifact.transsion.com/artifactory/shalltry-maven-public/' }
+        maven { url 'https://artifact.transsion.com/artifactory/jitpack/' }
+        maven { url 'https://artifact.transsion.com/artifactory/google/' }
+
+        maven { url "https://mvn.shalltry.com/repository/ad-snapshots/" }
+        maven { url 'https://nexus.trasre.com/repository/tmc-release' }
+
+        // 外网可访问(移动互联、JV公司)
+        maven { url "https://mvn.shalltry.com/repository/software-release/" }
+
+//        // 内网可访问(jekins，transsion网络)
+        maven { url "https://artifact.transsion.com/artifactory/thub-maven-guard-local" }
+        maven { url "https://mvn.shalltry.com/repository/base-snapshots/" }
+        maven { url "https://artifact.transsion.com/artifactory/thub-maven-daily-local/" }
+        maven { url 'https://nexus.trasre.com/repository/tmc-snapshot' }
+        // Hap SDK 标准化改造，palmsdk 2.0.1.30 依赖 hap-storage 等组件
+        maven { url "https://artifact.transsion.com/artifactory/tr-comp-maven-local/" }
+
+        // 本地仓库：用于 Verifier Public API 等通过本地 maven layout 提供的依赖
+        maven { url = uri("$rootDir/local-repo") }
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin('org.jetbrains.kotlin.android')) {
+            project.android.kotlinOptions.jvmTarget = '17'
+        }
+        if (project.plugins.hasPlugin('org.jetbrains.kotlin.jvm')) {
+            project.kotlin.jvmToolchain(17)
+        }
+    }
+}
+
+ext {
+    android = [
+//            compileSdkVersion: 36,
+            buildToolsVersion: "36.1.0",
+            minSdkVersion    : 24,
+            targetSdkVersion : 36,
+            versionName : "10.1.0.203",
+            versionCode : 10100203,
+            // 内置信息定义versionCode: 功能迭代时百位奇数增加
+            // Android Pad 版本以12X结尾，规避升级问题
+            preVersionName: "10.1.0.100",
+            preVersionCode: 10100100
+    ]
+}
+
+// 配置阶段直接执行，Sync 和构建时均生效
+def hooksDir = file('.githooks')
+if (hooksDir.exists()) {
+    exec {
+        commandLine 'git', 'config', 'core.hooksPath', '.githooks'
+    }
+    hooksDir.listFiles()?.each { it.setExecutable(true) }
+    println '✅ Git hooks path set to .githooks'
+}

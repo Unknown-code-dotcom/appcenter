@@ -1,0 +1,18 @@
+android {
+    buildFeatures {
+        //生成BuildConfig文件
+        buildConfig = true
+    }
+    defaultConfig {
+
+        //设置Room schema输出地址
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+
+        //控制svg文件输出分辨率，减少apk大小
+        vectorDrawables.generatedDensities = ['xhdpi', 'xxhdpi']
+    }
+}

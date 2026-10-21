@@ -1,0 +1,33 @@
+ext {
+    //主包的包名
+    PACKAGE_NAME                = "com.plamspace.country.so"
+    //插件包的包名
+    EXT_PACKAGE_NAME            = PACKAGE_NAME+".addon"
+
+    //主包的32位还是64位
+    //true:主包是32位，插件包是64位
+    //false:主包是64位，插件包是32位
+    VA_MAIN_PACKAGE_32BIT       = false
+    VA_ACCESS_PERMISSION_NAME   = PACKAGE_NAME+".permission.SAFE_ACCESS"
+    VA_AUTHORITY_PREFIX         = PACKAGE_NAME
+    VA_EXT_AUTHORITY_PREFIX     = PACKAGE_NAME+".ext"
+    VA_VERSION                  = '3.1'
+    VA_VERSION_CODE             = 310000000
+
+    //是否将VA lib源码全部打入插件包，主要针对主包需要加固的场景
+    //一旦主包加固后，插件包将无法加载主包运行，所以需将将源码全部打入插件包中
+    //注意：开启后每次有代码更新，需要同时更新主包和插件包。
+    VA_ENABLE_EXT_FULL_SOURCE_CODE = false
+
+    // 是否启用媒体存储重定向,开启必须使用共享UID模式!!!
+    //开启后，必须还要在app-ext的AndroidManifest.xml中手动开启android:sharedUserId
+    // 主要针对某些需要完全隔离的移动安全场景
+    VA_ENABLE_MEDIA_REDIRECT    = false
+    //媒体存储重定向的插件包名
+    MEDIA_PACKAGE_NAME          = PACKAGE_NAME+".media.module"
+
+    signing_storeFile           = "${rootDir}/va.keystore"
+    signing_storePassword       = "va123456"
+    signing_keyAlias            = "va"
+    signing_keyPassword         = "va123456"
+}

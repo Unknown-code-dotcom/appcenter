@@ -1,0 +1,142 @@
+# Android Studio
+*.iml
+.gradle
+./.gradle
+./.idea
+/local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
+/build
+/captures
+/palmplay61/.cxx
+
+#PS UI相关子模块屏蔽中文
+/dkplayer-ui/src/main/res/values-zh-rCN/*
+/dkplayer-ui/src/main/res/values-zh-rTW/*
+/dkplayer-ui/src/main/res/values-zh-rHK/*
+/dkplayer-ui/src/main/res/values-zh/*
+
+/hundsup/src/main/res/values-zh-rCN/*
+/hundsup/src/main/res/values-zh-rTW/*
+/hundsup/src/main/res/values-zh-rHK/*
+/hundsup/src/main/res/values-zh/*
+
+/P2P/res/src/main/res/values-zh-rCN/*
+/P2P/res/src/main/res/values-zh-rTW/*
+/P2P/res/src/main/res/values-zh-rHK/*
+/P2P/res/src/main/res/values-zh/*
+
+/P2P/transSDK/src/main/res/values-zh-rCN/*
+/P2P/transSDK/src/main/res/values-zh-rTW/*
+/P2P/transSDK/src/main/res/values-zh-rHK/*
+/P2P/transSDK/src/main/res/values-zh/*
+
+/palmplay61/src/main/res/values-zh-rCN/*
+/palmplay61/src/main/res/values-zh-rTW/*
+/palmplay61/src/main/res/values-zh-rHK/*
+/palmplay61/src/main/res/values-zh/*
+
+/phone_helper/src/main/res/values-zh-rCN/*
+/phone_helper/src/main/res/values-zh-rTW/*
+/phone_helper/src/main/res/values-zh-rHK/*
+/phone_helper/src/main/res/values-zh/*
+
+/reminder/src/main/res/values-zh-rCN/*
+/reminder/src/main/res/values-zh-rTW/*
+/reminder/src/main/res/values-zh-rHK/*
+/reminder/src/main/res/values-zh/*
+
+/xrecyclerview_lib/src/main/res/values-zh-rCN/*
+/xrecyclerview_lib/src/main/res/values-zh-rTW/*
+/xrecyclerview_lib/src/main/res/values-zh-rHK/*
+/xrecyclerview_lib/src/main/res/values-zh/*
+
+/xwebview/src/main/res/values-zh-rCN/*
+/xwebview/src/main/res/values-zh-rTW/*
+/xwebview/src/main/res/values-zh-rHK/*
+/xwebview/src/main/res/values-zh/*
+
+# External tool builders
+.externalToolBuilders/
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Local configuration file (sdk path, etc)
+local.properties
+gradle.properties
+.directory
+
+# Intellij project files
+*.ipr
+*.iws
+.idea/
+
+# Gradle
+build
+.gradle
+
+# Kotlin compiler caches
+.kotlin/
+
+# https://gist.github.com/AltNico/c581f370b3f88715876b
+*.apk
+*.ap_
+*.dex
+*.class
+build.xml
+.DS_Store
+gen/
+.gradle/
+proguard/
+out
+.settings/
+*.swp
+*~
+/repo
+
+# Source:
+# https://raw.githubusercontent.com/github/gitignore/master/Android.gitignore
+# https://gitlab.com/fdroid/fdroidclient/raw/master/.gitignore
+/.idea/encodings.xml
+# Claude Code 个人配置
+.claude/settings.local.json
+.claude/cache/
+.claude/logs/
+CLAUDE.local.md
+
+# MCP 个人 token
+.mcp.local.json
+
+# AI Track 会话级数据
+.ai_tracks/session_current.jsonl
+.ai_tracks/session_snapshots/
+
+git_info.txt
+
+/doc/temp
+/doc/temp/*
+.gstack/
+
+# AI Track 记录独立仓库，不污染主工程提交历史
+.ai_records/
+.ai_tracks/
+
+# Claude Code & Cursor local config
+.cursorrules
+.claude/skills/organize-vault/
+
+# Charles debug 私钥包（仅内网分发，禁止入仓）
+**/charles-team.p12
+
+__pycache__/
+# Added by code-review-graph
+.code-review-graph/

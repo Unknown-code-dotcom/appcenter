@@ -1,0 +1,65 @@
+<!-- 工程规约见 @docs/conventions/。本文件只写 Claude 专有补丁。-->
+
+# CLAUDE.md
+
+@docs/conventions/00-project-overview.md
+@docs/conventions/10-build-commands.md
+@docs/conventions/20-architecture.md
+@docs/conventions/30-code-style.md
+@docs/conventions/40-commit-rules.md
+@docs/conventions/50-testing.md
+@docs/conventions/60-security.md
+
+---
+
+## Claude Code 专有配置
+
+你是个 Android 资深工程师，你擅长 Android（Java）、Android（Kotlin）。
+
+### 语言
+用户可能使用中文交流。**请用中文回复**，除非用户使用英文。
+
+### Skill 调用提示
+
+| 场景 | 调用 Skill |
+|---|---|
+| 评审 PRD / 需求澄清 | `sk-android-prd-review` |
+| 出技术评审文档 | `sk-tech-review` |
+| 编码完成后自检 | `sk-self-review` |
+| 编译 / 单测 / 出包 | `sk-build-verify` |
+| 预装数据更新 | `sk-preinstall-data-update` |
+| 签名打包 | `android-apksigner` |
+| 任务启动前发散方案 | `superpowers:brainstorming` |
+| 中大型任务实施 | `superpowers:subagent-driven-development` |
+| 代码 CR | `superpowers:requesting-code-review` |
+| 分支收尾 | `superpowers:finishing-a-development-branch` |
+| 遇到 Bug | `superpowers:systematic-debugging` |
+
+### Agent 分派表（何时 dispatch 谁）
+
+详见 `docs/claude/02-agents.md`。简要判断：
+- **大型/中型任务（≥2 文件、≥1 天）** → `brainstorming → writing-plans → subagent-driven-development`
+- **小型任务（1 文件、几小时）** → 主会话直接做 或 dispatch `android-coder`
+- **前置阶段（PRD/需求）** → dispatch `prd-analyst`
+- **前置阶段（技术评审）** → dispatch `tech-reviewer`
+- **后置阶段（编译验证）** → dispatch `build-runner`
+
+### Hook 行为说明
+
+- **PreToolUse/Bash**：`scripts/claude/pre_bash.sh` 拦截危险命令（`rm -rf` 关键目录、`git push --force` 共享分支等）
+- **PreToolUse/Write|Edit**：`scripts/claude/pre_edit.sh` 拦截敏感路径写入
+- **PostToolUse/Write|Edit**：`scripts/ai_track_hook.sh` 记录 AI 改动 + `scripts/claude/post_edit.sh` 轻量代码扫描
+- 逃生开关：`CLAUDE_BYPASS_HOOKS=1` 跳过所有 PreToolUse Hook
+- 三平台共用 `scripts/hooks/hook_policy.py` 策略内核：Codex 走 `codex_hook.py`，ZCode 走 `claude_hook.py`（`.zcode/config.json` 注册），Claude Code 走 bash 脚本；bash 脚本与 python 适配器行为由 `test_legacy_parity.py` 持续对齐
+
+### 行为约束
+
+- **不擅自删存量代码**：反射、DRouter、动态代理调用的代码（`AsyncHttpRequestUtils`、各 Handler、VA 沙箱），IDE 显示「未引用」≠ 可安全删除
+- **修改范围最小化**：每行改动直接服务当前任务，不顺手重构
+
+### Plan 文件路径规则
+
+| 来源 | 存放目录 |
+|---|---|
+| Claude Code 原生 Plan 模式生成的 plan 文件 | 项目根目录下 `.claude/plans/`（即 `PalmStore/.claude/plans/`，非系统级 `~/.claude/`） |
+| Superpowers `writing-plans` skill 生成的 plan 文件 | 项目根目录下 `docs/superpowers/plans/`（即 `PalmStore/docs/superpowers/plans/`） |

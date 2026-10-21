@@ -1,0 +1,60 @@
+include ':xwebview'
+include ':xrecyclerview_lib'
+//include ':game'
+include ':palmplay61'
+include ':android-networking'
+include ':core'
+//include ':filedownloader'
+include ':reminder'
+//include ':sunaardemo'
+//include ':sunclient'
+include ':calculator'
+include ':AppBundle'
+include ':hundsup'
+include ':dkplayer-videocache'
+include ':dkplayer-java'
+include ':dkplayer-ui'
+include ':externalService'
+//include ':lib_abtest'
+include ':dkplayer-players:exo'
+include ':hdiff'
+include ':newphone_recommend'
+include ':mmkv'
+include ':attribution'
+include ':adService'
+//include ':P2P:freeshare'
+//include ':P2P:transSDK'
+//include ':P2P:nanohttpd'
+//include ':P2P:res'
+//include ':P2P:common'
+//include ':P2P:feature:transfer'
+//include ':P2P:core'
+include ':phone_helper'
+include ':playautoinstall'
+
+//include ':va_lib'
+//include ':optimize:looper-free'
+//include ':optimize:looper-framework'
+//include ':optimize:message-observer'
+include ':anchors'
+
+include(':va_lib')
+project(':va_lib').projectDir = file('./va_merge_source/lib')
+include(':va_lib_capabilties')
+project(':va_lib_capabilties').projectDir = file('./va_merge_source/lib-capabilties')
+
+include ':aidl'
+project(':aidl').projectDir = file('./va_merge_source/aidl')
+include(':va_lib_no_op')
+project(':va_lib_no_op').projectDir = file('./va_merge_source/lib-no-op')
+
+//include ':gamespace'
+//project(':gamespace').projectDir = file('./va_merge_source/gamespace')
+
+include ':baseLibs:commonBase'
+
+include ':gameweb'
+include ':util'
+include(':archive-patcher')
+include ':debugkit'
+//include ':pet'

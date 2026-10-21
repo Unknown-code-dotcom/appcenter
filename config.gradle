@@ -1,0 +1,22 @@
+ext {
+    // app 相关版本控制
+    versions = [
+            sdkMinVersion    : 23,
+            sdkTargetVersion : 36,
+            toolsBuildVersion: "36.1.0",
+    ]
+
+    isMainApp = false // 主模块开关，false = 作为lib组件存在，true = 作为App独立存在
+
+    android_sdk = [
+            compileSdkVersion      : 36,
+            buildToolsVersion      : "36.1.0",
+            minSdkVersion          : 24,
+            targetSdkVersion       : 36,
+            libraryMinSdkVersion   : 23,
+            libraryTargetSdkVersion: 31,
+            versionCode      : 555555,
+            versionName      : "5.5.5",    //必须是int或者float，否则影响线上升级
+            databaseVersion  : 1 // 数据库版本号
+    ]
+}

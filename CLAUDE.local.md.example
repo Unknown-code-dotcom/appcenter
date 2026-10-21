@@ -1,0 +1,12 @@
+# CLAUDE.local.md — 个人覆盖示例
+# 复制本文件为 CLAUDE.local.md（已 gitignore），填入个人配置
+
+## 个人偏好变体（示例）
+# 我的默认构建变体
+# ./gradlew assembleWithoutvaOnlineDebug
+
+## 跳过某些 Hook（示例）
+# 在 .claude/settings.local.json 中覆盖，见 .claude/settings.local.json.example
+
+## 本机签名（示例，不要将真实密钥写入任何进仓文件）
+# KEYSTORE_PATH=/Users/yourname/keys/palmstore.jks

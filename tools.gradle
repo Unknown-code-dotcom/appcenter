@@ -1,0 +1,150 @@
+tasks.register('generateGitInfo') {
+    doLast {
+        try {
+            def date = new Date().format("yyyy-MM-dd HH:mm:ss")
+            def branch = ['git', 'branch', '--show-current'].execute([], rootDir).text.trim()
+            def commitTime = ['git', 'log', '-1', '--format=%cd', '--date=format:%Y-%m-%d %H:%M:%S'].execute([], rootDir).text.trim()
+            def hash = ['git', 'log', '-1', '--format=%H'].execute([], rootDir).text.trim()
+            def shortHash = hash.length() > 16 ? "${hash[0..7]}...${hash[-8..-1]}" : hash
+            def author = ['git', 'log', '-1', '--format=%an'].execute([], rootDir).text.trim()
+
+            // ===== 远程信息（fetch 前，本地缓存）=====
+            def upstream = ''
+            def aheadBehindCached = ''
+            def remoteCommitTimeCached = ''
+            def remoteShortHashCached = ''
+            def remoteAuthorCached = ''
+                try {
+                    upstream = 'git rev-parse --abbrev-ref @{u}'.execute([], rootDir).text.trim()
+                    if (upstream) {
+                        def counts = "git rev-list --left-right --count ${upstream}...HEAD".execute([], rootDir).text.trim()
+                    if (counts && counts.contains('\t')) {
+                        def parts = counts.split('\t')
+                        def behind = parts[0].toInteger()
+                        def ahead = parts[1].toInteger()
+                        aheadBehindCached = "领先 ${ahead}，落后 ${behind}"
+                    }
+                    remoteCommitTimeCached = ['git', 'log', '-1', '--format=%cd', '--date=format:%Y-%m-%d %H:%M:%S', upstream].execute([], rootDir).text.trim()
+                    def remoteHash = ['git', 'log', '-1', '--format=%H', upstream].execute([], rootDir).text.trim()
+                    remoteShortHashCached = remoteHash.length() > 16 ? "${remoteHash[0..7]}...${remoteHash[-8..-1]}" : remoteHash
+                    remoteAuthorCached = ['git', 'log', '-1', '--format=%an', upstream].execute([], rootDir).text.trim()
+                }
+            } catch (Exception ignored) {
+            }
+
+            // ===== 上次 fetch 时间 =====
+            def lastFetchTime = ''
+            if (upstream) {
+                try {
+                    def fetchHead = new File(rootDir, ".git/FETCH_HEAD")
+                    if (fetchHead.exists()) {
+                        lastFetchTime = new Date(fetchHead.lastModified()).format("yyyy-MM-dd HH:mm:ss")
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            def statusOutput = 'git status --porcelain'.execute([], rootDir).text.trim()
+
+            def assetsDir = new File(projectDir, "src/main/assets")
+            if (!assetsDir.exists()) {
+                assetsDir.mkdirs()
+            }
+            def gitInfoFile = new File(assetsDir, "git_info.txt")
+            gitInfoFile.withWriter { writer ->
+                writer.writeLine("打包时间: ${date}")
+                writer.writeLine("当前分支: ${branch}")
+                writer.writeLine("最后提交时间: ${commitTime}")
+                writer.writeLine("Hash号: ${shortHash}")
+                writer.writeLine("提交人: ${author}")
+                if (upstream) {
+                    writer.writeLine("远端分支: ${upstream}")
+                    writer.writeLine("远程差异: ${aheadBehindCached}")
+                    writer.writeLine("远程最后提交: ${remoteCommitTimeCached}")
+                    writer.writeLine("远程Hash号: ${remoteShortHashCached}")
+                    writer.writeLine("远程提交人: ${remoteAuthorCached}")
+                    if (lastFetchTime) {
+                        writer.writeLine("上次fetch: ${lastFetchTime}")
+                    }
+                }
+                if (statusOutput) {
+                    def modifiedCount = 0
+                    def addedCount = 0
+                    def deletedCount = 0
+                    def untrackedCount = 0
+
+                    def lines = statusOutput.readLines()
+                    lines.each { line ->
+                        if (line.startsWith("??")) {
+                            untrackedCount++
+                        } else if (line.length() >= 2) {
+                            def status = line[0..1]
+                            if (status.contains('A')) {
+                                addedCount++
+                            } else if (status.contains('D')) {
+                                deletedCount++
+                            } else {
+                                modifiedCount++
+                            }
+                        }
+                    }
+
+                    def parts = []
+                    if (modifiedCount > 0) parts << "${modifiedCount}个修改"
+                    if (addedCount > 0) parts << "${addedCount}个新增"
+                    if (deletedCount > 0) parts << "${deletedCount}个删除"
+                    if (untrackedCount > 0) parts << "${untrackedCount}个未追踪"
+
+                    writer.writeLine("Git status: ${parts.join('，')}")
+                    writer.writeLine('-' * 20)
+
+                    lines.eachWithIndex { line, i ->
+                        writer.writeLine("${i + 1}. ${line.trim()}")
+                    }
+                } else {
+                    writer.writeLine("Git status: clean")
+                }
+            }
+        } catch (Exception e) {
+            println "Failed to generate git info: " + e.getMessage()
+        }
+    }
+}
+
+project.afterEvaluate {
+    tasks.named("preBuild") {
+        dependsOn generateGitInfo
+    }
+}
+
+// 仅安装最近一次 autoSign 生成的签名包，不触发编译。
+tasks.register('installLastSignedApk') {
+    group = "install"
+    description = "Install latest signed debug apk without rebuilding"
+    doLast {
+        def compileVariants = 'splitvaOnline'
+        def buildConfig = 'debug'
+        def keyType = 'lineage'
+        def platform = 'palmstore_self_platform'
+        def apkDir = file("${buildDir}/outputs/apk/${compileVariants}/${buildConfig}")
+
+        if (!apkDir.exists()) {
+            throw new GradleException("未找到 APK 目录: ${apkDir}，请先执行 :palmplay61:autoSign")
+        }
+
+        def prefix = "${keyType}_${platform}_Palmstore_"
+        def candidates = apkDir.listFiles()?.findAll { f ->
+            f.isFile() && f.name.startsWith(prefix) && f.name.endsWith(".apk")
+        } ?: []
+
+        if (candidates.isEmpty()) {
+            throw new GradleException("未找到已签名 APK（前缀 ${prefix}），请先执行 :palmplay61:autoSign")
+        }
+
+        def latestApk = candidates.max { it.lastModified() }
+        println("安装最近签名包: ${latestApk.absolutePath}")
+        exec {
+            commandLine "bash", "-c", "adb install -r \"${latestApk.absolutePath}\""
+        }
+    }
+}
